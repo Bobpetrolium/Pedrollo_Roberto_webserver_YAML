@@ -7,4 +7,4 @@
 6) All'interno del loop di ascolto, il tentativo di aprire e leggere index.html è isolato in un sotto-blocco try-except
 7) Se il file è presente, il server calcola dinamicamente la lunghezza del contenuto (Content-Length: {len(html_body)}) e restituisce una risposta HTTP/1.1 200 OK codificata in UTF-8.
 8) Il loop principale di accettazione delle connessioni (while True) è racchiuso in un try globale che intercetta KeyboardInterrupt
-9) 
+   
