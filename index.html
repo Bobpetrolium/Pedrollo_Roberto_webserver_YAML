@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevCore Ultra - Masterpiece</title>
+    <style>
+        /* =========================================
+           1. VARIABILI E SISTEMA TEMI (DARK/LIGHT)
+        ========================================= */
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #151516;
+            --bg-tertiary: #1d1d1f;
+            --text-primary: #f5f5f7;
+            --text-secondary: #86868b;
+            --accent-blue: #2997ff;
+            --nav-bg: rgba(0, 0, 0, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+
+        [data-theme="light"] {
+            --bg-primary: #fbfbfd;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f5f5f7;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --nav-bg: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+
+
+        /* =========================================
+           2. RESET, TIPOGRAFIA E CURSORE
+        ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            cursor: none !important; /* NASCONDE IL CURSORE DI DEFAULT OVUNQUE */
+        }
+
+
+        html { scroll-behavior: smooth; }
+
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.5s ease, color 0.5s ease;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+
+        /* --- CURSORE CUSTOM MAGNETICO --- */
+        .cursor-dot, .cursor-ring {
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+        }
+        .cursor-dot {
+            width: 6px; height: 6px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+        }
+        .cursor-ring {
+            width: 36px; height: 36px;
+            border: 1px solid var(--text-secondary);
+            border-radius: 50%;
+            transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), height 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s, border-color 0.3s;
+            mix-blend-mode: difference; /* Inverte i colori su sfondi chiari */
+        }
+        .cursor-ring.hovered {
+            width: 60px; height: 60px;
+            background-color: rgba(255, 255, 255, 1);
+            border-color: transparent;
+        }
+
+
+        /* =========================================
+           3. UI (Progress Bar & Bottoni)
+        ========================================= */
+        .progress-container {
+            position: fixed; top: 0; z-index: 10000; width: 100%; height: 3px; background: transparent;
+        }
+        .progress-bar {
+            height: 100%; background: linear-gradient(90deg, #ffb6ff, var(--accent-blue)); width: 0%;
+        }
+
+
+        .btn {
+            display: inline-block; padding: 14px 28px; border-radius: 30px; font-size: 17px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; border: none;
+        }
+        .btn-primary { background-color: var(--text-primary); color: var(--bg-primary); }
+        .btn-primary:hover { transform: scale(1.05); }
+        .btn-outline { background-color: transparent; color: var(--text-primary); border: 1px solid var(--text-primary); }
+        .btn-outline:hover { background-color: var(--text-primary); color: var(--bg-primary); }
+
+
+        /* =========================================
+           4. NAVBAR
+        ========================================= */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 52px; background: var(--nav-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; z-index: 9000; transition: all 0.5s ease;
+        }
+        .logo { font-weight: 700; font-size: 20px; color: var(--text-primary); text-decoration: none; letter-spacing: -0.5px; }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: var(--text-primary); text-decoration: none; font-size: 12px; opacity: 0.8; transition: opacity 0.2s; }
+        .nav-links a:hover { opacity: 1; }
+        .nav-controls { display: flex; align-items: center; gap: 20px; }
+        .theme-switch { background: none; border: none; color: var(--text-primary); font-size: 20px; }
+        .hamburger { display: none; background: none; border: none; color: var(--text-primary); font-size: 24px; }
+
+
+        /* =========================================
+           5. LAYOUT & ANIMAZIONI REVEAL
+        ========================================= */
+        section { padding: 120px 20px; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .section-title { font-size: clamp(32px, 5vw, 48px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 20px; }
+        .section-subtitle { font-size: clamp(18px, 2vw, 24px); color: var(--text-secondary); max-width: 700px; margin-bottom: 60px; }
+       
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .d-1 { transition-delay: 0.1s; } .d-2 { transition-delay: 0.2s; } .d-3 { transition-delay: 0.3s; }
+
+
+        /* =========================================
+           6. HERO SECTION
+        ========================================= */
+        .hero { min-height: 100vh; justify-content: center; padding-top: 150px; }
+        .hero h1 { font-size: clamp(48px, 8vw, 96px); font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        .hero-img-container { width: 100%; max-width: 1000px; margin-top: 60px; perspective: 1000px; }
+        .hero-img { width: 100%; border-radius: 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.4); transform: rotateX(10deg); transition: transform 0.5s ease-out; }
+
+
+        /* =========================================
+           7. TERMINALE INTERATTIVO
+        ========================================= */
+        .terminal-window { background-color: #1e1e1e; border-radius: 12px; border: 1px solid #333; overflow: hidden; width: 100%; max-width: 900px; margin: 0 auto; text-align: left; box-shadow: var(--glass-shadow); }
+        .terminal-header { background-color: #2d2d2d; padding: 10px 15px; display: flex; gap: 8px; align-items: center; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background-color: #ff5f56; } .dot-yellow { background-color: #ffbd2e; } .dot-green { background-color: #27c93f; }
+        .terminal-tabs { display: flex; gap: 15px; margin-left: 20px; }
+        .tab { color: #888; font-size: 13px; transition: 0.3s; padding: 5px 10px; border-radius: 5px; }
+        .tab:hover { background: rgba(255,255,255,0.1); }
+        .tab.active { color: #fff; background: rgba(255,255,255,0.1); }
+        .terminal-body { padding: 30px; font-family: 'Courier New', Courier, monospace; color: #d4d4d4; font-size: 15px; line-height: 1.6; min-height: 250px; }
+        .cursor-blink { display: inline-block; width: 8px; height: 18px; background-color: #fff; animation: blink 1s step-end infinite; vertical-align: middle; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .keyword { color: #569cd6; } .string { color: #ce9178; } .function { color: #dcdcaa; } .comment { color: #6a9955; font-style: italic; }
+
+
+        /* =========================================
+           8. GRIGLIA BENTO BOX
+        ========================================= */
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 300px); gap: 20px; width: 100%; }
+        .bento-item { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 24px; padding: 40px; display: flex; flex-direction: column; text-align: left; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .bento-item:hover { transform: translateY(-5px); box-shadow: var(--glass-shadow); }
+        .bento-large { grid-column: span 2; }
+        .bento-icon { font-size: 40px; margin-bottom: 20px; }
+
+
+        /* =========================================
+           9. CAROSELLO & FAQ
+        ========================================= */
+        .carousel-container { width: 100vw; position: relative; left: calc(-50vw + 50%); overflow: hidden; padding: 40px 0; }
+        .carousel-track { display: flex; gap: 30px; padding: 0 50vw; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .review-card { min-width: 400px; background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 40px; text-align: left; }
+        .stars { color: #f5c518; margin-bottom: 15px; }
+
+
+        .faq-container { width: 100%; max-width: 800px; }
+        .faq-item { border-bottom: 1px solid var(--border-color); overflow: hidden; }
+        .faq-question { width: 100%; text-align: left; padding: 24px 0; font-size: 18px; font-weight: 600; background: none; border: none; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center; }
+        .faq-answer { max-height: 0; color: var(--text-secondary); transition: max-height 0.4s ease, padding 0.4s ease; text-align: left; padding: 0; }
+        .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 24px; }
+        .faq-item.active .faq-icon { transform: rotate(45deg); }
+
+
+        /* =========================================
+           10. FOOTER
+        ========================================= */
+        footer { background-color: var(--bg-tertiary); padding: 80px 40px 40px; margin-top: 100px; }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li a { color: var(--text-secondary); text-decoration: none; font-size: 12px; }
+        .newsletter { grid-column: span 4; border-top: 1px solid var(--border-color); padding-top: 40px; display: flex; justify-content: space-between; align-items: center;}
+        .newsletter input { padding: 10px 20px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); outline: none; }
+
+
+        @media (max-width: 992px) { .bento-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; } .bento-large { grid-column: span 2; } }
+        @media (max-width: 768px) {
+            .nav-links { position: absolute; top: 52px; left: 0; width: 100%; background: var(--nav-bg); backdrop-filter: blur(20px); flex-direction: column; padding: 20px; transform: translateY(-150%); z-index: -1; transition: 0.3s; }
+            .nav-links.nav-active { transform: translateY(0); }
+            .hamburger { display: block; }
+            .bento-grid { grid-template-columns: 1fr; } .bento-large { grid-column: span 1; }
+            .footer-content { grid-template-columns: 1fr 1fr; }
+            .newsletter { flex-direction: column; text-align: center; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-ring" id="cursor-ring"></div>
+
+
+    <div class="progress-container"><div class="progress-bar" id="myBar"></div></div>
+
+
+    <nav id="navbar">
+        <a href="#" class="logo interactive-element">DevCore.</a>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#features" class="interactive-element">Features</a></li>
+            <li><a href="#terminal" class="interactive-element">Engine</a></li>
+            <li><a href="#reviews" class="interactive-element">Recensioni</a></li>
+            <li><a href="#faq" class="interactive-element">FAQ</a></li>
+        </ul>
+        <div class="nav-controls">
+            <button class="theme-switch interactive-element" id="theme-btn" aria-label="Toggle Theme">🌓</button>
+            <button class="hamburger interactive-element" id="hamburger">☰</button>
+        </div>
+    </nav>
+
+
+    <section class="hero">
+        <h1 class="reveal">Roberto Pedrollo.</h1>
+        <p class="section-subtitle reveal d-1">Il framework progettato per chi non accetta compromessi. Scrivi meno, ottieni l'impossibile. Architettura quantistica integrata.</p>
+        <div class="reveal d-2" style="display: flex; gap: 20px;">
+            <a href="#" class="btn btn-primary interactive-element">Acquista Ora</a>
+            <a href="#" class="btn btn-outline interactive-element">Guarda l'evento</a>
+        </div>
+        <div class="hero-img-container reveal d-3">
+            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop" alt="Macbook Code" class="hero-img" id="hero-tilt">
+        </div>
+    </section>
+
+
+    <section id="terminal">
+        <h2 class="section-title reveal">Parla la tua lingua.</h2>
+        <p class="section-subtitle reveal d-1">Motore poliglotta. Passa da un linguaggio all'altro o avvia l'assistente per scoprire l'easter egg.</p>
+       
+        <div class="terminal-window reveal d-2">
+            <div class="terminal-header">
+                <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+                <div class="terminal-tabs">
+                    <span class="tab active interactive-element" onclick="changeCode('js')">server.js</span>
+                    <span class="tab interactive-element" onclick="changeCode('py')">ai_model.py</span>
+                    <span class="tab interactive-element" onclick="changeCode('rs')">core.rs</span>
+                    <span class="tab interactive-element" style="color:#ffb6ff;" onclick="changeCode('trivia')">trivia.exe ⚡</span>
+                </div>
+            </div>
+            <div class="terminal-body">
+                <div id="code-output"></div><span class="cursor-blink"></span>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="features">
+        <h2 class="section-title reveal">Potenza brutale. Eleganza pura.</h2>
+        <div class="bento-grid">
+            <div class="bento-item bento-large reveal interactive-element">
+                <div class="bento-icon">⚡</div>
+                <h3>Compilazione Istantanea</h3>
+                <p>Grazie al nuovo compilatore scritto in Rust, i tuoi progetti da 1M di righe si avviano in meno di 0.4 secondi. Non hai più scuse per prendere il caffè.</p>
+            </div>
+            <div class="bento-item reveal d-1 interactive-element">
+                <div class="bento-icon">🔒</div>
+                <h3>Sicurezza Nativa</h3>
+                <p>Nessun pacchetto vulnerabile. Sandbox automatica per ogni thread.</p>
+            </div>
+            <div class="bento-item reveal d-2 interactive-element">
+                <div class="bento-icon">☁️</div>
+                <h3>Deploy Zero-Config</h3>
+                <p>Basta un 'push'. Noi gestiamo Kubernetes, load balancer e CDN.</p>
+            </div>
+            <div class="bento-item bento-large reveal d-3 interactive-element" style="background: linear-gradient(135deg, #2b1055, #7597de); color: white;">
+                <div class="bento-icon">🧠</div>
+                <h3 style="color:white;">Copilot Integrato</h3>
+                <p style="color:#d1d5db;">Un modello AI da 100B parametri addestrato solo per programmare. Ti suggerisce intere architetture, non solo righe di codice.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="reviews" style="max-width: 100%; padding-left: 0; padding-right: 0; overflow: hidden;">
+        <h2 class="section-title reveal" style="padding: 0 20px;">Cosa dicono i Tech Lead</h2>
+        <div class="carousel-container reveal d-1" id="carousel-container">
+            <div class="carousel-track interactive-element" id="carousel-track">
+                <div class="review-card"><div class="stars">★★★★★</div><p>"Ha dimezzato i tempi di sviluppo."</p><h4>Sarah J. - CTO</h4></div>
+                <div class="review-card"><div class="stars">★★★★★</div><p>"Il miglior IDE. L'integrazione AI è magia."</p><h4>Marco V. - Senior Dev</h4></div>
+                <div class="review-card"><div class="stars">★★★★☆</div><p>"UI stile Apple bellissima. Fantastico."</p><h4>Elena R. - Full Stack</h4></div>
+                <div class="review-card"><div class="stars">★★★★★</div><p>"Deploy istantaneo e database distribuito."</p><h4>Alex D. - Hacker</h4></div>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="faq">
+        <h2 class="section-title reveal">Domande Frequenti</h2>
+        <div class="faq-container reveal d-1">
+            <div class="faq-item">
+                <button class="faq-question interactive-element">È compatibile con Windows?<span class="faq-icon">+</span></button>
+                <div class="faq-answer"><p>Sì, DevCore è cross-platform. Funziona su macOS, Windows e Linux.</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question interactive-element">Come funziona l'AI integrata?<span class="faq-icon">+</span></button>
+                <div class="faq-answer"><p>L'AI gira in locale per garantire la privacy del codice base.</p></div>
+            </div>
+        </div>
+    </section>
+
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col"><h4>Prodotti</h4><ul><li><a href="#" class="interactive-element">DevCore IDE</a></li></ul></div>
+            <div class="footer-col"><h4>Risorse</h4><ul><li><a href="#" class="interactive-element">Documentazione</a></li></ul></div>
+            <div class="footer-col"><h4>Azienda</h4><ul><li><a href="#" class="interactive-element">Chi Siamo</a></li></ul></div>
+            <div class="footer-col"><h4>Legale</h4><ul><li><a href="#" class="interactive-element">Privacy Policy</a></li></ul></div>
+            <div class="newsletter">
+                <div><h4>Rimani aggiornato</h4></div>
+                <div>
+                    <input type="email" placeholder="La tua email..." class="interactive-element">
+                    <button class="btn btn-primary interactive-element" style="padding: 10px 20px; font-size: 14px;">Iscriviti</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        // 1. CURSORE CUSTOM & WEB AUDIO API (Effetto Sonoro Sci-Fi)
+        const dot = document.getElementById('cursor-dot');
+        const ring = document.getElementById('cursor-ring');
+        let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+       
+        // Setup Audio Context per il Beep
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+
+        function playHoverSound() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+           
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+           
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime); // Frequenza acuta tecnologica
+            gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime); // Volume bassissimo, non invasivo
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1); // Fade out veloce
+           
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            dot.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
+        });
+
+
+        function animateRing() {
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            ring.style.transform = `translate(calc(${ringX}px - 50%), calc(${ringY}px - 50%))`;
+            requestAnimationFrame(animateRing);
+        }
+        animateRing();
+
+
+        // Applica l'espansione del cursore e il suono sugli elementi interattivi
+        document.querySelectorAll('.interactive-element').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                ring.classList.add('hovered');
+                playHoverSound(); // Suona il beep!
+            });
+            el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
+        });
+
+
+
+
+        // 2. SCROLL PROGRESS
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById("myBar").style.width = ((winScroll / height) * 100) + "%";
+        };
+
+
+        // 3. DARK/LIGHT THEME
+        const themeBtn = document.getElementById('theme-btn');
+        themeBtn.addEventListener('click', () => {
+            const html = document.documentElement;
+            html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        });
+
+
+        // 4. HAMBURGER MENU
+        document.getElementById('hamburger').addEventListener('click', () => {
+            document.getElementById('nav-links').classList.toggle('nav-active');
+        });
+
+
+        // 5. SCROLL REVEAL ANIMATIONS
+        const revealObserver = new IntersectionObserver((entries, obs) => {
+            entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('active'); obs.unobserve(e.target); } });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(r => revealObserver.observe(r));
+
+
+        // 6. HERO 3D TILT
+        const heroImg = document.getElementById('hero-tilt');
+        document.addEventListener('mousemove', (e) => {
+            if (window.scrollY < 500) {
+                let x = (window.innerWidth / 2 - e.pageX) / 40;
+                let y = (window.innerHeight / 2 - e.pageY) / 40;
+                heroImg.style.transform = `rotateY(${x}deg) rotateX(${10 + y}deg)`;
+            }
+        });
+        document.addEventListener('mouseleave', () => heroImg.style.transform = `rotateY(0deg) rotateX(10deg)`);
+
+
+        // 7. TERMINALE INTERATTIVO (Con Easter Egg di Cultura Generale)
+        const codes = {
+            js: `<span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);\n<span class="keyword">const</span> app = <span class="function">express</span>();\n\napp.<span class="function">get</span>(<span class="string">'/'</span>, (req, res) => {\n  res.<span class="function">send</span>(<span class="string">'Hello DevCore Pro!'</span>);\n});\n\napp.<span class="function">listen</span>(<span class="string">3000</span>);`,
+            py: `<span class="keyword">import</span> torch\n<span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModel\n\n<span class="keyword">def</span> <span class="function">load_devcore_ai</span>():\n    model = AutoModel.<span class="function">from_pretrained</span>(<span class="string">'devcore/ultra'</span>)\n    <span class="keyword">return</span> model\n\n<span class="keyword">print</span>(<span class="string">"AI Ready to code."</span>)`,
+            rs: `<span class="keyword">fn</span> <span class="function">main</span>() {\n    <span class="keyword">let</span> speed = <span class="string">"blazing fast"</span>;\n    <span class="keyword">println!</span>(<span class="string">"DevCore compilation is {}"</span>, speed);\n    <span class="comment">// No garbage collector needed</span>\n}`,
+            trivia: `<span class="comment"># INITIALIZING TRIVIA DATABASE...</span>\n<span class="keyword">Loading</span> fact 1: <span class="string">Lo sapevi che Cleopatra è vissuta più vicina all'invenzione dell'iPhone che alla costruzione della Grande Piramide?</span>\n<span class="keyword">Loading</span> fact 2: <span class="string">Sui pianeti Giove e Saturno, letteralmente piove polvere di diamanti.</span>\n<span class="keyword">Loading</span> fact 3: <span class="string">Le coordinate spaziali del computer dell'Apollo 11 avevano meno memoria di una calcolatrice moderna.</span>\n\n<span class="function">System.out.println</span>(<span class="string">"Mind = Blown"</span>);`
+        };
+
+
+        const codeOutput = document.getElementById('code-output');
+        const tabs = document.querySelectorAll('.tab');
+        let typeInterval;
+
+
+        window.changeCode = function(lang) {
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+           
+            clearInterval(typeInterval);
+            codeOutput.innerHTML = '';
+            let htmlStr = codes[lang];
+            let i = 0, isTag = false, currentHTML = "";
+           
+            typeInterval = setInterval(() => {
+                if(i === htmlStr.length) { clearInterval(typeInterval); return; }
+                let char = htmlStr.charAt(i);
+                if(char === '<') isTag = true;
+                currentHTML += char;
+                if(!isTag || char === '>') {
+                    if(char === '>') isTag = false;
+                    codeOutput.innerHTML = currentHTML;
+                }
+                i++;
+            }, 5);
+        }
+        setTimeout(() => changeCode('js'), 1000); // Inizia con JS dopo 1 secondo
+
+
+        // 8. CAROSELLO DRAGGABILE
+        const track = document.getElementById('carousel-track');
+        let isDown = false, startX, scrollLeftVal;
+        track.addEventListener('mousedown', e => {
+            isDown = true;
+            startX = e.pageX - track.offsetLeft;
+            scrollLeftVal = track.style.transform ? parseInt(track.style.transform.replace('translateX(', '')) : 0;
+            if(isNaN(scrollLeftVal)) scrollLeftVal = 0;
+        });
+        track.addEventListener('mouseleave', () => isDown = false);
+        track.addEventListener('mouseup', () => isDown = false);
+        track.addEventListener('mousemove', e => {
+            if(!isDown) return;
+            e.preventDefault();
+            let newX = scrollLeftVal + (e.pageX - track.offsetLeft - startX) * 2;
+            if(newX > 0) newX = 0; if(newX < -1000) newX = -1000;
+            track.style.transform = `translateX(${newX}px)`;
+        });
+
+
+        // 9. FAQ ACCORDION
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.querySelector('.faq-question').addEventListener('click', () => {
+                document.querySelectorAll('.faq-item').forEach(other => { if(other !== item) other.classList.remove('active'); });
+                item.classList.toggle('active');
+            });
+        });
+
+
+    </script>
+</body>
+</html>
